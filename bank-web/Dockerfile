@@ -20,3 +20,6 @@ COPY --from=build /app/build .
 EXPOSE 8000
 
 CMD ["nginx", "-g", "daemon off;"]
+
+
+# hello
