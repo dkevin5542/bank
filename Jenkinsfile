@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         COMPOSE_FILE = 'docker-compose.yml'
+        // chnage this to your kubeconfig path
+        KUBECONFIG = 'C:\\Users\\dongk\\.kube\\config'
     }
 
     stages {
@@ -52,9 +54,10 @@ pipeline {
 
                 bat """
                 cd %WORKSPACE%
-                kubectl apply -f k8/namespace.yaml
-                kubectl apply -f k8/bankapi.yaml
-                kubectl apply -f k8/bankweb.yaml
+                kubectl config use-context docker-desktop
+                kubectl apply -f k8/namespace.yaml --validate=false
+                kubectl apply -f k8/bankapi.yaml --validate=false
+                kubectl apply -f k8/bankweb.yaml --validate=false
                 """
 
                 echo "Kubernetes resources after deploy:"
@@ -83,5 +86,6 @@ pipeline {
         }
     }
 }
+
 
 
