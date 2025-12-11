@@ -68,20 +68,20 @@ pipeline {
 
     post {
         success {
-            echo "✔ Deployment successful!
-- Docker Compose:
-    Web: http://localhost:3000
-    API: http://localhost:9090
-
-- Kubernetes (Docker Desktop):
-    Use port-forward in a terminal:
-      kubectl port-forward svc/bank-web -n bank 3000:80
-      kubectl port-forward svc/bank-api -n bank 9090:9090
-"
+            echo "✔ Deployment successful!"
+            echo "- Docker Compose:"
+            echo "    Web: http://localhost:3000"
+            echo "    API: http://localhost:9090"
+            echo ""
+            echo "- Kubernetes (Docker Desktop):"
+            echo "    Use port-forward in a terminal:"
+            echo "      kubectl port-forward svc/bank-web -n bank 3000:80"
+            echo "      kubectl port-forward svc/bank-api -n bank 9090:9090"
         }
         failure {
             echo "Deployment failed check console log for details."
         }
     }
 }
+
 
