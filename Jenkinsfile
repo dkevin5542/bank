@@ -52,9 +52,9 @@ pipeline {
 
                 bat """
                 cd %WORKSPACE%
-                kubectl apply -f k8s/namespace.yaml
-                kubectl apply -f k8s/bankapi.yaml
-                kubectl apply -f k8s/bankweb.yaml
+                kubectl apply -f k8/namespace.yaml
+                kubectl apply -f k8/bankapi.yaml
+                kubectl apply -f k8/bankweb.yaml
                 """
 
                 echo "Kubernetes resources after deploy:"
