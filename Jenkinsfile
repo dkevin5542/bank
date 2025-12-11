@@ -14,13 +14,15 @@ pipeline {
 
         stage('Build & Deploy with Docker Compose') {
             steps {
-                echo "Stopping existing containers (if any)..."
+                echo "Stopping and removing any existing containers..."
+
                 bat """
                 cd %WORKSPACE%
                 docker-compose -f %COMPOSE_FILE% down || exit /b 0
+                docker rm -f bank-api bank-web 2>NUL || exit /b 0
                 """
 
-                echo "Building and starting containers..."
+                echo "Building and starting containers with docker-compose..."
                 bat """
                 cd %WORKSPACE%
                 docker-compose -f %COMPOSE_FILE% up -d --build
@@ -33,14 +35,53 @@ pipeline {
                 bat "docker ps"
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo "Building images for Kubernetes and applying manifests..."
+
+                bat """
+                cd %WORKSPACE%\\bank-api
+                docker build -t bank-api:latest .
+                """
+
+                bat """
+                cd %WORKSPACE%\\bank-web
+                docker build --build-arg REACT_APP_API_URL=http://bank-api:9090/api/v1 -t bank-web:latest .
+                """
+
+                bat """
+                cd %WORKSPACE%
+                kubectl apply -f k8s/namespace.yaml
+                kubectl apply -f k8s/bank-api-deployment.yaml
+                kubectl apply -f k8s/bank-web-deployment.yaml
+                """
+
+                echo "Kubernetes resources after deploy:"
+                bat """
+                kubectl get pods -n bank
+                kubectl get svc -n bank
+                """
+            }
+        }
     }
 
     post {
         success {
-            echo "Deployment successful! Frontend: http://localhost:3000  Backend: http://localhost:9090"
+            echo "✔ Deployment successful!
+- Docker Compose:
+    Web: http://localhost:3000
+    API: http://localhost:9090
+
+- Kubernetes (Docker Desktop):
+    Use port-forward in a terminal:
+      kubectl port-forward svc/bank-web -n bank 3000:80
+      kubectl port-forward svc/bank-api -n bank 9090:9090
+"
         }
         failure {
-            echo "Deployment failed check the console log for Docker errors."
+            echo "Deployment failed check console log for details."
         }
     }
 }
+
