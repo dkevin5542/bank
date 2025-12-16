@@ -72,8 +72,14 @@ pipeline {
 
                 // ----- BANK API (JAVA / MAVEN) -----
                 dir(API_APP_DIR) {
-                    bat 'mvnw.cmd clean install -DskipTests'
-                    bat 'mvnw.cmd test'
+                    // Run Maven using a container so Jenkins doesn't need Maven or a working mvnw wrapper
+                    bat '''
+                    docker run --rm ^
+                    -v "%CD%":/app ^
+                    -w /app ^
+                    maven:3.9.5-eclipse-temurin-17 ^
+                    mvn -B clean test
+                    '''
                 }
 
                 // ----- BANK WEB (REACT) -----
